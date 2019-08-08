@@ -36,7 +36,7 @@ def send_one_file(sock_conn, file_abs_path):
     file_md5 = get_file_md5(file_abs_path)
 
     file_name = file_name.encode()
-    file_name += b' ' * (200 - len(file_name))
+    file_name += b' ' * (300 - len(file_name))
     file_size = "{:<15}".format(file_size).encode()
 
     file_desc_info = file_name + file_size + file_md5.encode()
@@ -50,9 +50,35 @@ def send_one_file(sock_conn, file_abs_path):
             sock_conn.send(data)
 
 
+def send_empty_dir(sock_conn, dir_abs_path):
+    '''
+    函数功能：将一个空文件夹发送给客户端
+    参数描述：
+        sock_conn 套接字对象
+        dir_abs_path 待发送的空文件夹的绝对路径
+    '''
+    file_name = dir_abs_path[len(dest_file_parent_path):]
+    if file_name[0] == '\\' or file_name[0] == '/':
+        file_name = file_name[1:]
+
+    file_size = -1
+    file_md5 = " " * 32
+
+    file_name = file_name.encode()
+    file_name += b' ' * (300 - len(file_name))
+    file_size = "{:<15}".format(file_size).encode()
+
+    file_desc_info = file_name + file_size + file_md5.encode()
+    sock_conn.send(file_desc_info)
+
+
 def send_file_thread(sock_conn):
     try:
         for root, dirs, files in os.walk(dest_file_abs_path):
+            if len(dirs) == 0 and len(files) == 0:
+                send_empty_dir(sock_conn, root)
+                continue
+
             for f in files:
                 file_abs_path = os.path.join(root, f)
                 print(file_abs_path)
