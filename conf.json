@@ -1,0 +1,7 @@
+{
+    "db_server": "192.168.8.166",
+    "db_port": 3306,
+    "db_user": "dj",
+    "db_password": "123456",
+    "db_name": "test"
+}
