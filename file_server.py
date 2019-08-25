@@ -40,6 +40,8 @@ def send_one_file(sock_conn, file_abs_path):
     if file_name[0] == '\\' or file_name[0] == '/':
         file_name = file_name[1:]
 
+    print("发送普通文件(%s)..." % file_name)
+
     file_size = os.path.getsize(file_abs_path)
     file_md5 = get_file_md5(file_abs_path)
 
@@ -69,6 +71,8 @@ def send_empty_dir(sock_conn, dir_abs_path):
     if file_name[0] == '\\' or file_name[0] == '/':
         file_name = file_name[1:]
 
+    print("发送空文件夹(%s)..." % file_name)
+
     file_size = -1
     file_md5 = " " * 32
 
@@ -91,11 +95,10 @@ def send_dir(sock_conn):
 
         for f in files:
             file_abs_path = os.path.join(root, f)
-            print(file_abs_path)
             send_one_file(sock_conn, file_abs_path)
 
 
-def user_service_thread(sock_conn):
+def user_service_thread(sock_conn, client_addr):
     try:
         data_len = sock_conn.recv(15).decode().rstrip()
         if len(data_len) > 0:
@@ -126,7 +129,11 @@ def user_service_thread(sock_conn):
                 sock_conn.send(header_data)
 
                 if not rsp["error_code"]:
-                    send_dir(sock_conn)
+                    print("用户%s登录成功，开始传输文件......" % req["args"]["uname"])
+                    if os.path.isdir(dest_file_abs_path):
+                        send_dir(sock_conn)
+                    else:
+                        send_one_file(sock_conn, dest_file_abs_path)
 
             elif req["op"] == 2:
                 # 用户注册
@@ -134,6 +141,8 @@ def user_service_thread(sock_conn):
                 if not user_reg_login.user_reg(req["args"]["uname"], req["args"]["passwd"], req["args"]["phone"], req["args"]["email"]):
                     # 注册失败
                     rsp["error_code"] = 1
+                else:
+                    print("用户%s注册成功！" % req["args"]["uname"])
 
                 rsp = json.dumps(rsp).encode()
                 data_len = "{:<15}".format(len(rsp)).encode()
@@ -147,12 +156,16 @@ def user_service_thread(sock_conn):
                 ret = user_reg_login.check_user_name(req["args"]["uname"])
                 if ret == 2:
                     rsp["error_code"] = 1
+                    print("校验用户名%s失败！" % req["args"]["uname"])
+                else:
+                    print("校验用户名%s成功！" % req["args"]["uname"])
                 
                 rsp = json.dumps(rsp).encode()
                 data_len = "{:<15}".format(len(rsp)).encode()
                 sock_conn.send(data_len)
                 sock_conn.send(rsp)            
     finally:
+        print("客户端(%s:%s)断开连接！" % client_addr)
         sock_conn.close()
 
 
@@ -164,8 +177,8 @@ def main():
 
     while True:
         sock_conn, client_addr = sock_listen.accept()
-        print(client_addr, "已连接！")
-        threading.Thread(target=user_service_thread, args=(sock_conn, )).start()
+        print("客户端(%s:%s)已连接！" % client_addr)
+        threading.Thread(target=user_service_thread, args=(sock_conn, client_addr)).start()
 
     sock_listen.close()
 
