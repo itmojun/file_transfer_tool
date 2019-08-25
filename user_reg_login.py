@@ -24,7 +24,7 @@ def check_user_name(user_name):
         return 1
 
     # 连接数据库，conn为Connection对象
-    conn = pymysql.connect(conf["db_server_ip"], conf["db_server_port"], conf["db_user"], conf["db_password"], conf["db_name"])
+    conn = pymysql.connect(host=conf["db_server_ip"], port=conf["db_server_port"], user=conf["db_user"], passwd=conf["db_password"], db=conf["db_name"], charset="utf8")
 
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句
@@ -51,8 +51,7 @@ def check_uname_pwd(user_name, password):
     返回值：校验通过返回0，校验失败返回1
     '''
     # 连接数据库，conn为Connection对象
-    conn = pymysql.connect(conf["db_server_ip"], conf["db_server_port"], conf["db_user"], conf["db_password"], conf["db_name"])
-
+    conn = pymysql.connect(host=conf["db_server_ip"], port=conf["db_server_port"], user=conf["db_user"], passwd=conf["db_password"], db=conf["db_name"], charset="utf8")
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句
             # 执行任意支持的SQL语句
@@ -150,7 +149,7 @@ def user_reg(uname, password, phone, email):
     返回值：成功返回True，失败返回False
     '''
     # 连接数据库，conn为Connection对象
-    conn = pymysql.connect(conf["db_server_ip"], conf["db_server_port"], conf["db_user"], conf["db_password"], conf["db_name"])
+    conn = pymysql.connect(host=conf["db_server_ip"], port=conf["db_server_port"], user=conf["db_user"], passwd=conf["db_password"], db=conf["db_name"], charset="utf8")
 
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句

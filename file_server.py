@@ -96,68 +96,69 @@ def send_dir(sock_conn):
 
 
 def user_service_thread(sock_conn):
-    data_len = sock_conn.recv(15).decode().rstrip()
-    if len(data_len) > 0:
-        data_len = int(data_len)
+    try:
+        data_len = sock_conn.recv(15).decode().rstrip()
+        if len(data_len) > 0:
+            data_len = int(data_len)
 
-        recv_size = 0
-        json_data = b""
-        while recv_size < data_len:
-            tmp = sock_conn.recv(data_len - recv_size)
-            if tmp == 0:
-                break
-            json_data += tmp
-            recv_size += len(tmp)
-        
-        json_data = json_data.decode()
-        req = json.loads(json_data)
-
-        if req["op"] == 1:
-            # 登录校验
-            rsp = {"op": 1, "error_code": 0}
-
-            if user_reg_login.check_uname_pwd(req["args"]["uname"], req["args"]["passwd"]):
-                rsp["error_code"] = 1
+            recv_size = 0
+            json_data = b""
+            while recv_size < data_len:
+                tmp = sock_conn.recv(data_len - recv_size)
+                if tmp == 0:
+                    break
+                json_data += tmp
+                recv_size += len(tmp)
             
-            header_data = json.dumps(rsp).encode()
-            data_len = "{:<15}".format(len(header_data)).encode()
-            sock_conn.send(data_len)
-            sock_conn.send(header_data)
+            json_data = json_data.decode()
+            req = json.loads(json_data)
 
-            if not rsp["error_code"]:
-                send_dir(sock_conn)
-            
-            sock_conn.close()
+            if req["op"] == 1:
+                # 登录校验
+                rsp = {"op": 1, "error_code": 0}
 
-        elif req["op"] == 2:
-            # 用户注册
-            rsp = {"op": 2, "error_code": 0}
-            if not user_reg_login.user_reg(req["args"]["uname"], req["args"]["passwd"], req["args"]["phone"], req["args"]["email"]):
-                # 注册失败
-                rsp["error_code"] = 1
+                if user_reg_login.check_uname_pwd(req["args"]["uname"], req["args"]["passwd"]):
+                    rsp["error_code"] = 1
+                
+                header_data = json.dumps(rsp).encode()
+                data_len = "{:<15}".format(len(header_data)).encode()
+                sock_conn.send(data_len)
+                sock_conn.send(header_data)
 
-            rsp = json.dumps(rsp).encode()
-            data_len = "{:<15}".format(len(rsp)).encode()
-            sock_conn.send(data_len)
-            sock_conn.send(rsp)            
-            sock_conn.close()            
+                if not rsp["error_code"]:
+                    send_dir(sock_conn)
 
-        elif req["op"] == 3:
-            # 校验用户名是否存在
-            rsp = {"op": 3, "error_code": 0}
+            elif req["op"] == 2:
+                # 用户注册
+                rsp = {"op": 2, "error_code": 0}
+                if not user_reg_login.user_reg(req["args"]["uname"], req["args"]["passwd"], req["args"]["phone"], req["args"]["email"]):
+                    # 注册失败
+                    rsp["error_code"] = 1
 
-            ret = user_reg_login.check_user_name(req["args"]["uname"])
-            if ret == 2:
-                rsp["error_code"] = 1
-            
-            rsp = json.dumps(rsp).encode()
-            data_len = "{:<15}".format(len(rsp)).encode()
-            sock_conn.send(data_len)
-            sock_conn.send(rsp)            
-            sock_conn.close()            
+                rsp = json.dumps(rsp).encode()
+                data_len = "{:<15}".format(len(rsp)).encode()
+                sock_conn.send(data_len)
+                sock_conn.send(rsp)            
+
+            elif req["op"] == 3:
+                # 校验用户名是否存在
+                rsp = {"op": 3, "error_code": 0}
+
+                ret = user_reg_login.check_user_name(req["args"]["uname"])
+                if ret == 2:
+                    rsp["error_code"] = 1
+                
+                rsp = json.dumps(rsp).encode()
+                data_len = "{:<15}".format(len(rsp)).encode()
+                sock_conn.send(data_len)
+                sock_conn.send(rsp)            
+    finally:
+        sock_conn.close()
+
 
 def main():
     sock_listen = socket.socket()
+    sock_listen.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock_listen.bind((conf["app_server_ip"], conf["app_server_port"]))
     sock_listen.listen(5)
 
