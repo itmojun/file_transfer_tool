@@ -56,7 +56,7 @@ def check_uname_pwd(user_name, password):
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句
             # 执行任意支持的SQL语句
-            cur.execute("select uname from user where uname=%s and psaawd=password(%s)", (user_name, password))
+            cur.execute("select uname from user where uname=%s and passwd=password(%s)", (user_name, password))
             # 通过游标获取执行结果
             rows = cur.fetchone()
     finally:
@@ -155,7 +155,7 @@ def user_reg(uname, password, phone, email):
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句
             # 执行任意支持的SQL语句
-            cur.execute("insert into user (uname, psaawd, phone, email) values (%s, password(%s), %s, %s)", (uname, password, phone, email))
+            cur.execute("insert into user (uname, passwd, phone, email) values (%s, password(%s), %s, %s)", (uname, password, phone, email))
             r = cur.rowcount
             conn.commit()
     finally:

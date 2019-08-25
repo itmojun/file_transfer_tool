@@ -90,15 +90,15 @@ def send_dir(sock_conn):
 
 
 def user_service_thread(sock_conn):
-    data_len = sock.recv(15).decode().rstrip()
+    data_len = sock_conn.recv(15).decode().rstrip()
     if len(data_len) > 0:
         data_len = int(data_len)
 
         recv_size = 0
-        json_data = ""
+        json_data = b""
         while recv_size < data_len:
-            tmp = sock.recv(data_len - recv_size)
-            if len(tmp) == 0:
+            tmp = sock_conn.recv(data_len - recv_size)
+            if tmp == 0:
                 break
             json_data += tmp
             recv_size += len(tmp)
@@ -113,10 +113,10 @@ def user_service_thread(sock_conn):
             if user_reg_login.check_uname_pwd(req["args"]["uname"], req["args"]["passwd"]):
                 rsp["error_code"] = 1
             
-            rsp = json.dumps(rsp).encode()
-            data_len = "{:<15}".format(len(rsp)).encode()
+            header_data = json.dumps(rsp).encode()
+            data_len = "{:<15}".format(len(header_data)).encode()
             sock_conn.send(data_len)
-            sock_conn.send(rsp)
+            sock_conn.send(header_data)
 
             if not rsp["error_code"]:
                 send_dir(sock_conn)
