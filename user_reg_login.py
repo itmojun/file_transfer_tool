@@ -9,7 +9,7 @@ import random, json
 import sys
 
 
-conf = json.load(open("conf.json"))  # 配置信息
+conf = json.load(open("server_conf.json"))  # 加载配置信息
 
 
 def check_user_name(user_name):
@@ -24,7 +24,7 @@ def check_user_name(user_name):
         return 1
 
     # 连接数据库，conn为Connection对象
-    conn = pymysql.connect(conf["db_server"], conf["db_user"], conf["db_password"], conf["db_name"])
+    conn = pymysql.connect(conf["db_server_ip"], conf["db_server_port"], conf["db_user"], conf["db_password"], conf["db_name"])
 
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句
@@ -51,7 +51,7 @@ def check_uname_pwd(user_name, password):
     返回值：校验通过返回0，校验失败返回1
     '''
     # 连接数据库，conn为Connection对象
-    conn = pymysql.connect(conf["db_server"], conf["db_user"], conf["db_password"], conf["db_name"])
+    conn = pymysql.connect(conf["db_server_ip"], conf["db_server_port"], conf["db_user"], conf["db_password"], conf["db_name"])
 
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句
@@ -150,7 +150,7 @@ def user_reg(uname, password, phone, email):
     返回值：成功返回True，失败返回False
     '''
     # 连接数据库，conn为Connection对象
-    conn = pymysql.connect(conf["db_server"], conf["db_user"], conf["db_password"], conf["db_name"])
+    conn = pymysql.connect(conf["db_server_ip"], conf["db_server_port"], conf["db_user"], conf["db_password"], conf["db_name"])
 
     try:
         with conn.cursor() as cur:  # 获取一个游标对象(Cursor类)，用于执行SQL语句

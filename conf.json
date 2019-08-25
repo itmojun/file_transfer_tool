@@ -1,7 +1,0 @@
-{
-    "db_server": "127.0.0.1",
-    "db_port": 3306,
-    "db_user": "dj",
-    "db_password": "123456",
-    "db_name": "mydb"
-}

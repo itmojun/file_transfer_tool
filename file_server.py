@@ -10,6 +10,12 @@ import json
 import user_reg_login
 
 
+conf = json.load(open("server_conf.json"))  # 加载配置信息
+dest_file_abs_path = os.path.abspath(sys.argv[1])
+dest_file_parent_path = os.path.dirname(dest_file_abs_path)
+dest_file_name = os.path.basename(dest_file_abs_path)
+
+
 def get_file_md5(file_path):
     m = hashlib.md5()
 
@@ -150,19 +156,18 @@ def user_service_thread(sock_conn):
             sock_conn.send(rsp)            
             sock_conn.close()            
 
+def main():
+    sock_listen = socket.socket()
+    sock_listen.bind((conf["app_server_ip"], conf["app_server_port"]))
+    sock_listen.listen(5)
 
-dest_file_abs_path = os.path.abspath(sys.argv[1])
-dest_file_parent_path = os.path.dirname(dest_file_abs_path)
-dest_file_name = os.path.basename(dest_file_abs_path)
+    while True:
+        sock_conn, client_addr = sock_listen.accept()
+        print(client_addr, "已连接！")
+        threading.Thread(target=user_service_thread, args=(sock_conn, )).start()
+
+    sock_listen.close()
 
 
-sock_listen = socket.socket()
-sock_listen.bind(("0.0.0.0", 9999))
-sock_listen.listen(5)
-
-while True:
-    sock_conn, client_addr = sock_listen.accept()
-    print(client_addr, "已连接！")
-    threading.Thread(target=user_service_thread, args=(sock_conn, )).start()
-
-sock_listen.close()
+if __name__ == '__main__':
+    main()

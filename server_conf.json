@@ -1,0 +1,9 @@
+{
+    "app_server_ip": "0.0.0.0",
+    "app_server_port": 9999,
+    "db_server_ip": "127.0.0.1",
+    "db_server_port": 3306,
+    "db_user": "dj",
+    "db_password": "123456",
+    "db_name": "mydb"
+}
