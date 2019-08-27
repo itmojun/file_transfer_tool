@@ -60,7 +60,7 @@
 
    ​			"phone": "18574315251",  # 手机号
 
-   ​			"emai": "dj@itmojun.com"  # 邮箱
+   ​			"email": "dj@itmojun.com"  # 邮箱
 
    ​		}
 
