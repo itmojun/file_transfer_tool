@@ -138,12 +138,13 @@ def user_service_thread(sock_conn, client_addr):
             elif req["op"] == 2:
                 # 用户注册
                 rsp = {"op": 2, "error_code": 0}
+
                 if not user_reg_login.user_reg(req["args"]["uname"], req["args"]["passwd"], req["args"]["phone"], req["args"]["email"]):
                     # 注册失败
                     rsp["error_code"] = 1
                 else:
                     print("用户%s注册成功！" % req["args"]["uname"])
-
+                
                 rsp = json.dumps(rsp).encode()
                 data_len = "{:<15}".format(len(rsp)).encode()
                 sock_conn.send(data_len)
@@ -163,7 +164,9 @@ def user_service_thread(sock_conn, client_addr):
                 rsp = json.dumps(rsp).encode()
                 data_len = "{:<15}".format(len(rsp)).encode()
                 sock_conn.send(data_len)
-                sock_conn.send(rsp)            
+                sock_conn.send(rsp) 
+    except:
+        pass          
     finally:
         print("客户端(%s:%s)断开连接！" % client_addr)
         sock_conn.close()

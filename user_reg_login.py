@@ -157,6 +157,8 @@ def user_reg(uname, password, phone, email):
             cur.execute("insert into user (uname, passwd, phone, email) values (%s, password(%s), %s, %s)", (uname, password, phone, email))
             r = cur.rowcount
             conn.commit()
+    except:
+        r = 0
     finally:
         # 关闭数据库连接
         conn.close()      
